@@ -7,6 +7,8 @@ same size representing a row of the matrix.
 If A is a matrix, then A[i][j] is the element in the ith row and jth column.
 """
 
+import validator as valid
+
 
 def shape(matrix):
     """
@@ -29,11 +31,14 @@ def shape(matrix):
             ...
         IndexError: Each row must have the same number of columns.
     """
+    # TODO: Add different failures based on valid.is_matrix()
+    valid_matrix, problems = valid.is_matrix(matrix)
+
+    if not valid_matrix:
+        raise IndexError(" ".join(problems))
+
     num_rows = len(matrix)
     num_cols = len(matrix[0])
-
-    if any([len(a) != num_cols for a in matrix]):
-        raise IndexError('Each row must have the same number of columns.')
 
     return num_rows, num_cols
 
@@ -65,6 +70,11 @@ def get_row(matrix, i):
             ...
         IndexError: Each row must have the same number of columns.
     """
+    # TODO: Add different failures based on valid.is_matrix()
+    valid_matrix, problems = valid.is_matrix(matrix)
+
+    if not valid_matrix:
+        raise IndexError(" ".join(problems))
 
     num_rows, _ = shape(matrix)
 
@@ -106,6 +116,11 @@ def get_col(matrix, j):
             ...
         IndexError: Each row must have the same number of columns.
     """
+    # TODO: Add different failures based on valid.is_matrix()
+    valid_matrix, problems = valid.is_matrix(matrix)
+
+    if not valid_matrix:
+        raise IndexError(" ".join(problems))
 
     _, num_cols = shape(matrix)
 
