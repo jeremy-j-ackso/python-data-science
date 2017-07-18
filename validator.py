@@ -75,7 +75,7 @@ def is_matrix(to_check):
 
 
         >>> zzz = [ [1, 2, 3], [3, 2], [4, 5, [5, 4]] ]
-        >>> is_matrix(zzz) # doctest: +NORMALIZE__WHITESPACE
+        >>> is_matrix(zzz) # doctest: +NORMALIZE_WHITESPACE
         (False,
          ['One of the rows in the matrix is not a valid vector.',
           'Each row must have the same number of columns.'])
@@ -91,6 +91,6 @@ def is_matrix(to_check):
     if any([len(a) != num_cols for a in to_check]):
         collector.append('Each row must have the same number of columns.')
 
-    valid_matrix = bool(len(collector))
+    valid_matrix = not bool(collector)
 
     return valid_matrix, collector
