@@ -31,7 +31,6 @@ def shape(matrix):
             ...
         IndexError: Each row must have the same number of columns.
     """
-    # TODO: Add different failures based on valid.is_matrix()
     valid_matrix, problems = valid.is_matrix(matrix)
 
     if not valid_matrix:
@@ -70,7 +69,6 @@ def get_row(matrix, i):
             ...
         IndexError: Each row must have the same number of columns.
     """
-    # TODO: Add different failures based on valid.is_matrix()
     valid_matrix, problems = valid.is_matrix(matrix)
 
     if not valid_matrix:
@@ -116,7 +114,6 @@ def get_col(matrix, j):
             ...
         IndexError: Each row must have the same number of columns.
     """
-    # TODO: Add different failures based on valid.is_matrix()
     valid_matrix, problems = valid.is_matrix(matrix)
 
     if not valid_matrix:
@@ -152,9 +149,16 @@ def make_matrix(num_rows, num_cols, entry_fn):
         >>> make_matrix(2, 2, lambda i, j: 1 if i ==j else 0)
         [[1, 0], [0, 1]]
     """
-    return [[entry_fn(i, j)
-             for j in range(num_cols)]
-            for i in range(num_rows)]
+    new_matrix = [[entry_fn(i, j)
+                   for j in range(num_cols)]
+                  for i in range(num_rows)]
+
+    valid_matrix, problems = valid.is_matrix(new_matrix)
+
+    if not valid_matrix:
+        raise IndexError(" ".join(problems))
+
+    return new_matrix
 
 
 def is_diagonal(i, j):
