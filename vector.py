@@ -234,7 +234,7 @@ def dot(v1, v2):
     if not (valid.is_vector(v1) and valid.is_vector(v2)):
         raise IndexError("One of the vectors passed is not a valid vector")
 
-    if len(v1) != len(v2):
+    if not len(v1) == len(v2):
         raise IndexError('Vectors must be the same length')
 
     return sum(v1_i * v2_i
