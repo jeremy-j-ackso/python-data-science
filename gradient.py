@@ -66,3 +66,50 @@ def safe(f):
         except:
             return float('inf')
     return safe_f
+
+
+def minimize_batch(target_fn, gradient_fn, theta_0, tolerance=0.000001):
+    """
+    Use gradient descent to find theta that minimizes the target function.
+    """
+    step_sizes = [100, 10, 1, 0.1, 0.01, 0.001, 0.0001, 0.00001]
+
+    theta = theta_0
+    target_fn = safe(target_fn)
+    value = target_fn(theta)
+
+    while True:
+        gradient = gradient_fn(theta)
+        next_thetas = [step(theta, gradient, -step_size)
+                       for step_size in step_sizes]
+        next_theta = min(next_thetas, key=target_fn)
+        next_value = target_fn(next_theta)
+
+        if abs(value - next_value) < tolerance:
+            return theta
+        else:
+            theta, value = next_theta, next_value
+
+
+def negate(f):
+    """
+    Return a function that for any input x returns -f(x)
+    """
+    return lambda *args, **kwargs: -f(*args, **kwargs)
+
+
+def negate_all(f):
+    """
+    The same when f returns a list of numbers
+    """
+    return lambda *args, **kwargs: [-y for y in f(*args, **kwargs)]
+
+
+def maximize_batch(target_fn, gradient_fn, theta_0, tolerance=0.000001):
+    """
+    Use gradient descent to find theta that maximizes the target function.
+    """
+    return minimize_batch(negate(target_fn),
+                          negate_all(gradient_fn),
+                          theta_0,
+                          tolerance)
