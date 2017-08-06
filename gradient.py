@@ -53,3 +53,16 @@ def sum_of_squares_gradient(v):
     Calculate the sum of squres for the gradient.
     """
     return [2 * v_i for v_i in v]
+
+
+def safe(f):
+    """
+    Returns a new function that's the same as f, except that it outputs
+    infinity whenever f produces an error
+    """
+    def safe_f(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except:
+            return float('inf')
+    return safe_f
