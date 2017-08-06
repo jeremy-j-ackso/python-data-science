@@ -3,6 +3,9 @@ Functions for Gradient Descent
 """
 
 
+import vector as v
+
+
 def difference_quotient(f, x, h):
     """
     Calculates the difference quotient of a function, given a variable and
@@ -113,3 +116,59 @@ def maximize_batch(target_fn, gradient_fn, theta_0, tolerance=0.000001):
                           negate_all(gradient_fn),
                           theta_0,
                           tolerance)
+
+
+"""
+Stochastic Gradient Descent
+"""
+
+
+def in_random_order(data):
+    """
+    Generator that returns the elements of data in random order
+    """
+    indexes = [i for i, _ in enumerate(data)]
+    random.shuffle(indexes)
+
+    for i in indexes:
+        yield data[i]
+
+
+def minimize_stochastic(target_fn, gradient_fn, x, y, theta_0, alpha_0=0.01):
+    """
+    Do Stochastic Gradient Descent via minimization.
+    """
+    data = zip(x, y)
+    theta = theta_0
+    alpha = alpha_0
+    min_theta, min_value = None, float("inf")
+    iterations_with_no_improvement = 0
+
+    while iterations_with_no_imporovement < 100:
+        value = sum(target_fn(x_i, y_i, theta) for x_i, y_i in data)
+
+        if value < min_value:
+            min_theta, min_value = theta, value
+            iterations_with_no_improvement = 0
+            alpha = alpha_0
+        else:
+            iterations_with_no_improvement += 1
+            alpha *= 0.9
+
+        for x_i, y_i in in_random_order(data):
+            gradient_i = gradient_fn(x_i, y_i, theta)
+            theta = v.vector_subtract(
+                theta,
+                v.scalar_multiply(alpha, gradient_i)
+            )
+
+    return min_theta
+
+
+def maximize_stochastic(target_fn, gradient_fn, x, y, theta_0, alpha_0=0.01):
+    """
+    Do stochastic Gradient Descent via maximization.
+    """
+    return minimize_stochastic(negate(target_fn),
+                               negate_all(gradient_fn),
+                               x, y, theta_0, alpha_0)
