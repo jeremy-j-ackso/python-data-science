@@ -115,6 +115,134 @@ def normal_cdf(x, mu=0, sigma=1):
     return (1 + math.erf((x - mu) / math.sqrt(2) / sigma)) / 2
 
 
+# The normmal cdf is the probability the variable is below a threshold.
+normal_probability_below = normal_cdf
+
+
+def normal_probability_above(lo, mu=0, sigma=1):
+    """
+    A random variable is above the threshold if it's not below the threshold.
+
+    Args:
+        lo (Int or Float): A random variable.
+        mu (Int or Float): The mean of the distribution.
+        sigma (Int or Float): The standard deviation of the distribution.
+
+    Returns:
+        Float
+
+    Examples:
+        >>> normal_probability_above(0.5, 0, 1)
+        0.3085375387259869
+    """
+    return 1 - normal_cdf(lo, mu, sigma)
+
+
+def normal_probability_between(lo, hi, mu=0, sigma=1):
+    """
+    A random variable is between if it's less than hi, but not less than lo.
+
+    Args:
+        lo (Int or Float): A random variable.
+        hi (Int or Float): A random variable.
+        mu (Int or Float): The mean of the distribution.
+        sigma (Int or Float): The standard deviation of the distribution.
+
+    Returns:
+        Float
+
+    Examples:
+        >>> normal_probability_between(0.2, 0.3, 0, 1)
+        0.15773925946598155
+    """
+    return normal_cdf(hi, mu, sigma) - normal_cdf(lo, hi, sigma)
+
+
+def normal_probability_outside(lo, hi, mu=0, sigma=1):
+    """
+    A random variable is outside if it's not between.
+
+    Args:
+        lo (Int or Float): A random variable.
+        hi (Int or Float): A random variable.
+        mu (Int or Float): The mean of the distribution.
+        sigma (Int or Float): The standard deviation of the distribution.
+
+    Returns:
+        Float
+
+    Examples:
+        >>> normal_probability_between(0.2, 0.3, 0, 1)
+        0.15773925946598155
+    """
+    return 1 - normal_probability_between(lo, hi, mu, sigma)
+
+
+def normal_upper_bound(probability, mu=0, sigma=1):
+    """
+    Returns the z for which P(Z <= z) = probability.
+
+    Args:
+        probability (Float): A probability to test against.
+        mu (Int or Float): The mean of the distribution.
+        sigma (Int or Float): The standard deviation of the distribution.
+
+    Returns:
+        Float
+
+    Examples:
+        >>> normal_upper_bound(0.95, 0, 1)
+        1.6448497772216797
+        >>> normal_upper_bound(0.1, 0, 1)
+        -1.2815570831298828
+    """
+    return inverse_normal_cdf(probability, mu, sigma)
+
+
+def normal_lower_bound(probability, mu=0, sigma=1):
+    """
+    Returns the z for which P(Z >= z) = probability.
+
+    Args:
+        probability (Float): A probability to test against.
+        mu (Int or Float): The mean of the distribution.
+        sigma (Int or Float): The standard deviation of the distribution.
+
+    Returns:
+        Float
+        >>> normal_lower_bound(0.95, 0, 1)
+        -1.6448497772216797
+
+        >>> normal_lower_bound(0.1, 0, 1)
+        1.2815570831298828
+    """
+    return inverse_normal_cdf(1 - probability, mu, sigma)
+
+
+def normal_two_sided_bounds(probability, mu=0, sigma=1):
+    """
+    Returns the symmetric bounds about the mean that contain the
+    specified probability.
+
+    Args:
+        probability (Float): A probability to test against.
+        mu (Int or Float): The mean of the distribution.
+        sigma (Int or Float): The standard deviation of the distribution.
+
+    Returns:
+        Tuple of Floats
+
+    Examples:
+        >>> normal_two_sided_bounds(0.95, 500.0, 15.811388300841896)
+        (469.01026640487555, 530.9897335951244)
+    """
+    tail_probability = (1 - probability) / 2
+    upper_bound = normal_lower_bound(tail_probability, mu, sigma)
+    lower_bound = normal_upper_bound(tail_probability, mu, sigma)
+
+    return lower_bound, upper_bound
+
+
 def inverse_normal_cdf(p, mu=0, sigma=1, tolerance=0.00001):
     """
     Return a value of the specified probablity from the specified normal
@@ -224,3 +352,78 @@ def make_hist(p, n, num_points):
     plt.plot(xs, ys)
     plt.title("Binomial Distribution vs Normal Approximation")
     plt.show()
+
+
+def normal_approximation_to_binomial(n, p):
+    """
+    Finds the mu and sigma for a corresponding to a Binmoial(n, p).
+
+    Args:
+        n (Int): The number of bernoulli trials to run.
+        p (Float): The probability to test against.
+
+    Returns:
+        Tuple containing (mu, sigma).
+
+    Examples:
+        >>> normal_approximation_to_binomial(1, 0.5)
+        (0.5, 0.5)
+
+        >>> normal_approximation_to_binomial(1000, 0.5)
+        (500.0, 15.811388300841896)
+    """
+    mu = p * n
+    sigma = math.sqrt(p * (1 - p) * n)
+    return mu, sigma
+
+
+def B(alpha, beta):
+    """
+    A normalizing constant so that the total probability is 1.
+
+    Args:
+        alpha (Float): An alpha value for the Beta distribution.
+        beta (Float): A beta value for the Beta distribution.
+
+    Returns:
+        Float. The probablity of the two values in the Beta distribution.
+
+    Examples:
+        >>> B(1, 1)
+        1.0
+
+        >>> B(10, 1)
+        0.1
+
+        >>> B(1, 10)
+        0.1
+    """
+    return math.gamma(alpha) * math.gamma(beta) / math.gamma(alpha + beta)
+
+
+def beta_pdf(x, alpha, beta):
+    """
+    Returns the pdf of a beta distribution.
+
+    Args:
+        x (Float): A weight such that 0 <= x <= 1.
+        alpha (Float): An alpha value for the Beta distribution.
+        beta (Float): A beta value for the Beta distribution.
+
+    Returns:
+        Float. The pdf of the beta distribution for the given values.
+
+    Examples:
+        >>> beta_pdf(0.5, 1, 1)
+        1.0
+
+        >>> beta_pdf(1, 1, 1)
+        0
+
+        >>> beta_pdf(0, 1, 1)
+        0
+    """
+    if x <= 0 or x >= 1:
+        return 0
+
+    return x ** (alpha - 1) * (1 - x) ** (beta - 1) / B(alpha, beta)
